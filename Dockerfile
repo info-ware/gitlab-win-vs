@@ -1,9 +1,24 @@
-FROM debian:buster
+FROM mcr.microsoft.com/windows/servercore:ltsc2019
+SHELL ["powershell"]
 
-RUN apt-get update && apt-get install -y gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf build-essential devscripts cmake debhelper dh-systemd dh-exec pkg-config libboost-all-dev
-RUN apt-get update && apt-get install -y libasound2-dev libgles2-mesa-dev
-RUN apt-get install -y libcurl4-openssl-dev
+RUN Invoke-WebRequest "https://aka.ms/vs/16/release/vs_community.exe" -OutFile "$env:TEMP\vs_community.exe" -UseBasicParsing
+RUN & "$env:TEMP\vs_community.exe" --add Microsoft.VisualStudio.Workload.NetWeb --quiet --wait --norestart --noUpdateInstaller | Out-Default
 
-RUN dpkg --add-architecture armhf
-RUN apt-get update && apt-get install -y libasound2-dev:armhf libgles2-mesa-dev:armhf
-RUN apt-get install -y libcurl4-openssl-dev:armhf
+# msbuild
+RUN & 'C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe' /version
+
+# choco
+RUN iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))
+
+# 7zip
+RUN choco install -y 7zip.install
+
+# git
+RUN choco install -y git
+RUN git --version --build-options
+
+# nuget
+RUN choco install -y nuget.commandline
+RUN nuget help
+
+CMD ["powershell"]

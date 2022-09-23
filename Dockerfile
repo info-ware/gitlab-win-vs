@@ -1,7 +1,8 @@
 FROM mcr.microsoft.com/windows/servercore:ltsc2019
-SHELL ["powershell"]
+#SHELL ["powershell"]
+SHELL ["cmd", "/S", "/C"]
 
-RUN Invoke-WebRequest "https://aka.ms/vs/16/release/vs_community.exe" -OutFile "$env:TEMP\vs_community.exe" -UseBasicParsing
+RUN Invoke-WebRequest "https://aka.ms/vs/17/release/vs_community.exe" -OutFile "$env:TEMP\vs_community.exe" -UseBasicParsing
 RUN & "$env:TEMP\vs_community.exe" --add Microsoft.VisualStudio.Workload.NetWeb --quiet --wait --norestart --noUpdateInstaller | Out-Default
 
 # msbuild
